@@ -26,13 +26,13 @@ public class UserController {
 	UserService userService;
 
 	@GetMapping("/Users")
-	ResponseEntity<List<UserDto>> getUsersall() {
+	public ResponseEntity<List<UserDto>> getUsersall() {
 		List<UserDto> userSkillDtoList = userService.getAllUsers();
 		return new ResponseEntity<>(userSkillDtoList, HttpStatus.OK);
 	}
 
 	@GetMapping("/Users/{id}")
-	ResponseEntity<UserDto> getUserWithId(@PathVariable("id") String userId) {
+	public ResponseEntity<UserDto> getUserWithId(@PathVariable("id") String userId) {
 		UserDto userdto = userService.getUserWithId(userId);
 		return new ResponseEntity<>(userdto, HttpStatus.OK);
 	}

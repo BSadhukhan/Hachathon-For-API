@@ -57,19 +57,18 @@ public class UserService {
 	}
 
 	public User updateUser(User user, String userId) {
-		System.out.println(">>>>>>>>>>" + user.getCreationTime());
+		User modifiedUser = new User();
 		Date utilDate = new Date();
 
-		Optional<User> usr = userRepo.findById(userId);
-		if (!usr.isPresent()) {
+		Optional<User> existingUser = userRepo.findById(userId);
+		if (!existingUser.isPresent()) {
 			throw new UserNotFoundException("User(id- " + userId + ") Not Found !!");
 		} else {
-			user.setCreationTime(usr.get().getCreationTime());
 			user.setLastModTime(new Timestamp(utilDate.getTime()));
-			userRepo.save(user);
+			modifiedUser = userRepo.save(user);
 		}
 		
-		return user;
+		return modifiedUser;
 
 	}
 

@@ -1,8 +1,12 @@
 package com.ninja.lms.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,31 +24,34 @@ public class SkillController {
 	@Autowired
 	SkillService skillService;
 
-	@GetMapping("/skills")
-	public List<Skill> getAllSkills() {
-		return skillService.getSkills();
+	@GetMapping("/Skills")
+	public ResponseEntity<List<Skill>> getAllSkills() {
+		return new ResponseEntity<>(skillService.getSkills(),HttpStatus.OK);
 	}
 
-	@GetMapping("/skills/{id}")
-	public Skill getSkill(@PathVariable int id) {
-		Skill s = skillService.getSkill(id);
-		return s;
+	@GetMapping("/Skills/{id}")
+	public ResponseEntity<Skill> getSkill(@PathVariable int id) {
+		Skill skill = skillService.getSkill(id);
+		return new ResponseEntity<>(skill, HttpStatus.OK);
 	}
 	
-	@PostMapping("/skill")
-    public Skill addSkill(@RequestBody Skill skill) {
-    	return skillService.saveSkill(skill);
+	@PostMapping("/Skills")
+    public ResponseEntity<Skill> CreateSkill(@RequestBody Skill skill) throws URISyntaxException{
+    	Skill newSkill = skillService.saveSkill(skill);
+    	return ResponseEntity.created(new URI("/Skills/" + newSkill.getSkillId())).body(newSkill);
     }
 
-	@PutMapping("/skills/{id}")
-	public Skill putSkill(@RequestBody Skill skill) {
-		Skill sk = skillService.saveSkill(skill);
-		return sk;
+	@PutMapping("/Skills/{id}")
+	public ResponseEntity<Skill> updateSkill(@RequestBody Skill skill, @PathVariable("id") int skillId) {
+		Skill newSkill = skillService.updateSkill(skill, skillId);
+		return new ResponseEntity<>(newSkill, HttpStatus.CREATED);
 	}
-	/*
-	@DeleteMapping("/skills/{id}")
-    public String deleteSkill(@PathVariable int id) {
-    	return skillService.deleteSkill(id);
+	
+	@DeleteMapping("/Skills/{id}")
+    public ResponseEntity<String> deleteSkill(@PathVariable int id) {
+    	skillService.deleteSkill(id);
+    	String msg = "Skill - " + id + " has been deleted !!";
+		return ResponseEntity.status(HttpStatus.OK).body(msg);
     }
-    */
+   
 }

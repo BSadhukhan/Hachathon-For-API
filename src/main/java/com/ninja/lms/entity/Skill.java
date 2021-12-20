@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="TBL_LMS_SKILL_MASTER")
 public class Skill {
@@ -69,6 +71,7 @@ public class Skill {
 		this.userSkill = userSkill;
 	}
 */
+	@JsonIgnore
 	public Timestamp getCreationTime() {
 		return creationTime;
 	}
@@ -77,6 +80,7 @@ public class Skill {
 		this.creationTime = creationTime;
 	}
 
+	@JsonIgnore
 	public Timestamp getLastModTime() {
 		return lastModTime;
 	}

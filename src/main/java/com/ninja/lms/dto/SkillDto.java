@@ -5,6 +5,7 @@ public class SkillDto {
 	private int skillId;
 	private String skillName;
 	private String displayMsg;
+	
 	public int getSkillId() {
 		return skillId;
 	}
