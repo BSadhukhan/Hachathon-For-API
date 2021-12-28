@@ -32,11 +32,11 @@ public class UserIDGenerator extends SequenceStyleGenerator {
 	public void configure(Type type, Properties params, ServiceRegistry serviceRegistry) throws MappingException {
 	    
 		super.configure(LongType.INSTANCE, params, serviceRegistry);
-		System.out.println("VALUE_PREFIX_PARAMETER :: " + VALUE_PREFIX_PARAMETER + " :: NUMBER_FORMAT_PARAMETER :: " + NUMBER_FORMAT_PARAMETER);
+		
 	    valuePrefix = ConfigurationHelper.getString(VALUE_PREFIX_PARAMETER, params, VALUE_PREFIX_DEFAULT);
-	    System.out.println("valuePrefix :: "+ valuePrefix);
+	    
 	    numberFormat = ConfigurationHelper.getString(NUMBER_FORMAT_PARAMETER, params, NUMBER_FORMAT_DEFAULT);
-	    System.out.println("numberFormat :: "+ numberFormat);
+	    
 	}
 	
 }

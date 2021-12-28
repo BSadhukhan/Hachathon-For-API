@@ -1,5 +1,6 @@
 package com.ninja.lms.entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,8 +22,13 @@ import com.ninja.lms.config.UserIDGenerator;
 
 @Entity
 @Table(name="TBL_LMS_USER")
-public class User {
+public class User implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4220387089612992112L;
+
 	@Id
 	@Column
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
@@ -69,13 +75,33 @@ public class User {
 	@Column
 	private Timestamp lastModTime;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+	@OneToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST}, mappedBy = "user")
 	@JsonIgnore
 	Set<UserSkillMap> userSkillMapSet = new HashSet<UserSkillMap>();
 	
 	public User() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+	
+	public User(String userId, String userFirstName, String userLastName, long userPhoneNumber, String userLocation,
+			String userTimeZone, String userLinkedinUrl, String userEduUg, String userEduPg, String userComments,
+			String userVisaStatus, Timestamp creationTime, Timestamp lastModTime) {
+		super();
+		this.userId = userId;
+		this.userFirstName = userFirstName;
+		this.userLastName = userLastName;
+		this.userPhoneNumber = userPhoneNumber;
+		this.userLocation = userLocation;
+		this.userTimeZone = userTimeZone;
+		this.userLinkedinUrl = userLinkedinUrl;
+		this.userEduUg = userEduUg;
+		this.userEduPg = userEduPg;
+		this.userComments = userComments;
+		this.userVisaStatus = userVisaStatus;
+		this.creationTime = creationTime;
+		this.lastModTime = lastModTime;
+		
 	}
 
 	public User(String userId, String userFirstName, String userLastName, long userPhoneNumber, String userLocation,

@@ -20,7 +20,8 @@ public interface UserRepository extends JpaRepository<User, String>{
 					+ "FROM tbl_lms_user usr, tbl_lms_userskill_map mp, tbl_lms_skill_master skill "
 					+ "WHERE usr.user_id = mp.user_id "
 					+ "AND skill.skill_id = mp.skill_id "
-					+ "AND skill.skill_id = :skillId ")
+					+ "AND skill.skill_id = :skillId "
+					+ "ORDER BY usr.user_id, skill.skill_id")
 	public List<User> findUsersBySkillId(@Param("skillId") int skillId);
 
 }

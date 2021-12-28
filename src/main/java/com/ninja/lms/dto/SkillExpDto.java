@@ -1,30 +1,32 @@
 package com.ninja.lms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class SkillExpDto {
 	
-	private int skillId;
-	private String skillName;
-	private int skillExp;
+	private int id;
+	private String skill;
+	private int exp;
 	
-	public int getSkillId() {
-		return skillId;
+	public int getId() {
+		return id;
 	}
-	public void setSkillId(int skillId) {
-		this.skillId = skillId;
+	public void setId(int id) {
+		this.id = id;
 	}
-	public String getSkillName() {
-		return skillName;
+	public String getSkill() {
+		return skill;
 	}
-	public void setSkillName(String skillName) {
-		this.skillName = skillName;
+	public void setSkill(String skill) {
+		this.skill = skill;
 	}
-	public int getSkillExp() {
-		return skillExp;
+	@JsonIgnore
+	public int getExp() {
+		return exp;
 	}
-	public void setSkillExp(int skillExp) {
-		this.skillExp = skillExp;
+	public void setExp(int exp) {
+		this.exp = exp;
 	}
-	
 	
 
 }

@@ -1,8 +1,10 @@
 package com.ninja.lms.controller;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,45 +18,67 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ninja.lms.dto.UserDto;
-import com.ninja.lms.entity.User;
 import com.ninja.lms.service.UserService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
+@Api(tags = "Users API", value = "UsersAPI")
 public class UserController {
+	
+	//private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
 	UserService userService;
-
+	
+	//Fetch all User Details
 	@GetMapping("/Users")
-	public ResponseEntity<List<UserDto>> getUsersall() {
+	@ApiOperation(value = "List all users")
+	public ResponseEntity<List<UserDto>> getAllUsers() {
 		List<UserDto> userSkillDtoList = userService.getAllUsers();
 		return new ResponseEntity<>(userSkillDtoList, HttpStatus.OK);
 	}
-
+	
+	//Fetch User Details by User ID
 	@GetMapping("/Users/{id}")
-	public ResponseEntity<UserDto> getUserWithId(@PathVariable("id") String userId) {
+	@ApiOperation(value = "List user by USER_ID")
+	public ResponseEntity<UserDto> getUserById(@PathVariable("id") String userId) {
+		
 		UserDto userdto = userService.getUserWithId(userId);
 		return new ResponseEntity<>(userdto, HttpStatus.OK);
 	}
 
+	//Create User
 	@PostMapping("/Users")
-	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) throws URISyntaxException{
+	@ApiOperation(value = "Create a new user")
+	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) throws Exception{
+		
 		UserDto responseDto = new UserDto();
 		responseDto = userService.insertUser(userDto);
-		return ResponseEntity.created(new URI("/Users/" + responseDto.getUserId())).body(responseDto);
+		return ResponseEntity.created(new URI("/Users/" + responseDto.getUser_id())).body(responseDto);
 	}
 
+	//Update User
 	@PutMapping("/Users/{id}")
-	public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable("id") String userId) {
-		User responseDto = userService.updateUser(user, userId);
+	@ApiOperation(value = "Update an existing user")
+	public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable("id") String userId) throws Exception {
+		
+		UserDto responseDto = userService.updateUser(userDto, userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
-	// Delete User
+	//Delete User
 	@DeleteMapping("/Users/{id}")
-	public ResponseEntity<String> deleteUser(@PathVariable("id") String id) {
-		userService.deleteById(id);
-		String msg = "User - " + id + " has been deleted !!";
-		return ResponseEntity.status(HttpStatus.OK).body(msg);
+	@ApiOperation(value = "Delete an existing user")
+	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("id") String id) {
+		Map<String, String> responseMap = new TreeMap<String, String>(Collections.reverseOrder());
+		userService.deleteUserById(id);
+
+		String msg = "The record has been deleted !!";
+		responseMap.put("user_ id", id);
+		responseMap.put("message_response", msg);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
 	}
 }

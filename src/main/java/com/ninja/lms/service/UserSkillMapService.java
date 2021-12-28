@@ -1,161 +1,146 @@
 package com.ninja.lms.service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.ninja.lms.dto.UserWithSkillsDisplayDto;
+import com.ninja.lms.repository.SkillRepository;
 import com.ninja.lms.repository.UserRepository;
 import com.ninja.lms.repository.UserSkillMapRepository;
-import com.ninja.lms.exception.UserNotFoundException;
-import com.ninja.lms.dao.UserSkillMapDAO;
-import com.ninja.lms.dto.SkillExpDto;
+import com.ninja.lms.exception.DataNotFoundException;
 import com.ninja.lms.dto.UserSkillMapDto;
 import com.ninja.lms.entity.UserSkillMap;
+import com.ninja.lms.entity.Skill;
 import com.ninja.lms.entity.User;
 
 @Service
 public class UserSkillMapService {
-	
+
 	@Resource
-	UserSkillMapRepository userSkillMapRepo;
-	
+	private UserSkillMapRepository userSkillMapRepo;
+
 	@Resource
-	UserRepository userRepository; 
-	
+	private UserRepository userRepository;
+
 	@Resource
-	UserSkillMapDAO mapDao;
-	
-	public List<UserSkillMapDto> fetchAllUserSkillMapData(){
-		
-		System.out.println("***************");
-		
+	private SkillRepository skillRepository;
+
+	private final String SUCCESS_CREATE_MSG = "Successfully Created !!";
+	private final String SUCCESS_UPDATE_MSG = "Successfully Updated !!";
+
+	public List<UserSkillMapDto> fetchAllUserSkillMapData() {
+
 		List<UserSkillMapDto> returnList = new ArrayList<UserSkillMapDto>();
 		List<UserSkillMap> userSkillMapList = userSkillMapRepo.findAll();
-		
-		System.out.println(userSkillMapList.size());
-		
-		for(UserSkillMap itr : userSkillMapList) {
-			
-			UserSkillMapDto mapDto = new UserSkillMapDto();
-			System.out.println(itr.getUserSkillId());
-			mapDto.setUserSkillId(itr.getUserSkillId());
-			mapDto.setUserId(itr.getUser().getUserId());
-			mapDto.setSkillId(itr.getSkill().getSkillId());
-			mapDto.setMonthsOfExp(itr.getMonthsOfExp());
-			
+
+		for (UserSkillMap itr : userSkillMapList) {
+
+			UserSkillMapDto mapDto = populateUserSkillMapDto(itr, null);
+
 			returnList.add(mapDto);
 		}
-		
-		
+
 		return returnList;
 	}
-	
-	public UserSkillMapDto fetchUserSkillMapDataById(String userSkillId){
+
+	public UserSkillMapDto fetchUserSkillMapDataById(String userSkillId) {
 		UserSkillMapDto mapDto = new UserSkillMapDto();
 		UserSkillMap userSkill = new UserSkillMap();
 		Optional<UserSkillMap> optional = userSkillMapRepo.findById(userSkillId);
-		
-		if(!optional.isPresent()) {
-			throw new UserNotFoundException("UserSkillId - "  + userSkillId + " Not Found !!");
-		}else {
+
+		if (!optional.isPresent()) {
+			throw new DataNotFoundException("UserSkillId - " + userSkillId + " Not Found !!");
+		} else {
 			userSkill = optional.get();
-			mapDto.setUserSkillId(userSkill.getUserSkillId());
-			mapDto.setUserId(userSkill.getUser().getUserId());
-			mapDto.setSkillId(userSkill.getSkill().getSkillId());
-			mapDto.setMonthsOfExp(userSkill.getMonthsOfExp());
+			mapDto = populateUserSkillMapDto(userSkill, null);
 		}
 		return mapDto;
 	}
-			
+
 	public UserSkillMapDto createUserSkillMap(UserSkillMapDto userSkillMapDto) {
-		System.out.println("***************");
-		
-		int row = mapDao.insertUserSkillMap(userSkillMapDto);
-		
-		return userSkillMapDto;
-	}
-/*	
-	public User updateUserSkillMap(UserSkillMapDto userSkillMapDto, String userSkillId) {
-		
-	}
-*/	
-	public List<UserWithSkillsDisplayDto> fetchAllUserANdSkill() {
-		List<UserWithSkillsDisplayDto> userSkillDtoList  = new ArrayList<UserWithSkillsDisplayDto>();
-		List<User> userList = userRepository.findAll();
-		
-		userList.stream().forEach(user -> {
-			UserWithSkillsDisplayDto userSkillDto = mapEntityToDto_UserSkillMap(user);
-			userSkillDtoList.add(userSkillDto);
-		});
-		
-		return userSkillDtoList;
-	}
-	
-	public UserWithSkillsDisplayDto fetchUserAndSkillById(String userId) {
-		UserWithSkillsDisplayDto userSkillDto = new UserWithSkillsDisplayDto();
-		
-		Optional<User> user = userRepository.findById(userId);
-		if(!user.isPresent()) {
-			throw new UserNotFoundException("User(id- "  + userId + ") Not Found !!");
-		}else {
-			userSkillDto = mapEntityToDto_UserSkillMap(user.get());
+		Date utilDate = new Date();
+		UserSkillMap userSkillEntity = new UserSkillMap();
+
+		User user = null;
+		String userId = userSkillMapDto.getUser_id();
+		Optional<User> optionalUser = userRepository.findById(userId);
+
+		Skill skill = null;
+		int skillId = userSkillMapDto.getSkill_id();
+		Optional<Skill> optionalSkill = skillRepository.findById(skillId);
+
+		if (!optionalUser.isPresent()) {
+			throw new DataNotFoundException("UserId - " + userId + " Not Found !!");
+		} else if (!optionalSkill.isPresent()) {
+			throw new DataNotFoundException("SkillId - " + skillId + " Not Found !!");
+		} else {
+			user = optionalUser.get();
+			skill = optionalSkill.get();
 		}
-		return userSkillDto;
+		
+		userSkillEntity.setUser(user);
+		userSkillEntity.setSkill(skill);
+		userSkillEntity.setMonthsOfExp(userSkillMapDto.getMonths_of_exp());
+		userSkillEntity.setCreationTime(new Timestamp(utilDate.getTime()));
+		userSkillEntity.setLastModTime(new Timestamp(utilDate.getTime()));
+
+		UserSkillMapDto newUserSkillDto = populateUserSkillMapDto(userSkillMapRepo.save(userSkillEntity), SUCCESS_CREATE_MSG);
+		return newUserSkillDto;
 	}
 	
-	public List<UserWithSkillsDisplayDto> fetchUserBySkillId(int skillId) {
-		List<UserWithSkillsDisplayDto> userSkillDtoList  = new ArrayList<UserWithSkillsDisplayDto>();
-		List<User> userList = userRepository.findUsersBySkillId(skillId);
-		System.out.println("skillId :: "+skillId + " userList.size "+userList.size());
-		userList.stream().forEach(user -> {
-			UserWithSkillsDisplayDto userSkillDto = mapEntityToDto_UserSkillMap(user);
-			userSkillDtoList.add(userSkillDto);
-		});
+	public UserSkillMapDto updateUserSkillMap(UserSkillMapDto userSkillMapDto, String userSkillId) {
+		Date utilDate = new Date();
 		
-		return userSkillDtoList;
-	}
-	
-	private UserWithSkillsDisplayDto mapEntityToDto_UserSkillMap(User user) {
-		UserWithSkillsDisplayDto returnDto = new UserWithSkillsDisplayDto();
-		Set<SkillExpDto> skillExpDtoList = new HashSet<>();
-		
-		System.out.println("In mapEntityToDto_User : " + user.getUserId());
-		returnDto.setUserId(user.getUserId());
-		returnDto.setUserName(user.getUserFirstName() + " " + user.getUserLastName());
-		returnDto.setLocation(user.getUserLocation());
-		
-		Set<UserSkillMap> userSkillMapSet = user.getUserSkillMapSet();
-		
-		if(userSkillMapSet.size() != 0) {
-			//for(UserSkillMap skillMap : userSkills) 
-			userSkillMapSet.stream().forEach(skill -> {
-				SkillExpDto skillExpDto = populateSkillDto(skill);
-				skillExpDtoList.add(skillExpDto);
-			});
-				
-			returnDto.setSkills(skillExpDtoList);
+		Optional<UserSkillMap> optionalMap = userSkillMapRepo.findById(userSkillId);
+		if (!optionalMap.isPresent()) {
+			throw new DataNotFoundException("UserSkillId - " + userSkillId + " Not Found !!");
 		}
-		return returnDto;		
+		UserSkillMap existingMapEntity = optionalMap.get();
+		
+		String existingUserId = existingMapEntity.getUser().getUserId();
+		String modifiedUserId = userSkillMapDto.getUser_id();
+		if ((modifiedUserId != null || modifiedUserId != "") && !existingUserId.equalsIgnoreCase(modifiedUserId)) {
+			throw new DataNotFoundException("User_Id-> " + modifiedUserId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
+		}
+		
+		int existingSkillId = existingMapEntity.getSkill().getSkillId();
+		int modifiedSkillId = userSkillMapDto.getSkill_id();
+		if (modifiedSkillId != 0 && existingSkillId != modifiedSkillId) {
+			throw new DataNotFoundException("Skill_Id-> " + modifiedSkillId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
+		}
+
+		existingMapEntity.setMonthsOfExp(userSkillMapDto.getMonths_of_exp());
+		existingMapEntity.setLastModTime(new Timestamp(utilDate.getTime()));
+
+		UserSkillMapDto newUserSkillDto = populateUserSkillMapDto(userSkillMapRepo.save(existingMapEntity), SUCCESS_UPDATE_MSG);
+		return newUserSkillDto;
 	}
-	
-	private SkillExpDto populateSkillDto(UserSkillMap userSkillMap) {
-		SkillExpDto returnDto = new SkillExpDto();
-		
-		returnDto.setSkillId(userSkillMap.getSkill().getSkillId());
-		
-		String skillName = userSkillMap.getSkill().getSkillName();
-		returnDto.setSkillName(skillName);
-		
-		returnDto.setSkillExp(userSkillMap.getMonthsOfExp());
-		
-		return returnDto;
+
+	public void deleteUserSkillMap(String userSkillId) {
+
+		boolean exists = userSkillMapRepo.existsById(userSkillId);
+		if (!exists) {
+			throw new DataNotFoundException("User Skill Id- " + userSkillId + " Not Found !!");
+		}
+		userSkillMapRepo.deleteById(userSkillId);
+	}
+
+	private UserSkillMapDto populateUserSkillMapDto(UserSkillMap newMapEntity, String msg) {
+		UserSkillMapDto mapDto = new UserSkillMapDto();
+
+		mapDto.setUser_skill_id(newMapEntity.getUserSkillId());
+		mapDto.setUser_id(newMapEntity.getUser().getUserId());
+		mapDto.setSkill_id(newMapEntity.getSkill().getSkillId());
+		mapDto.setMonths_of_exp(newMapEntity.getMonthsOfExp());
+		mapDto.setMessage_response(msg);
+
+		return mapDto;
 	}
 
 }

@@ -1,33 +1,51 @@
 package com.ninja.lms.entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ninja.lms.config.UserIDGenerator;
 
 @Entity
 @Table(name="TBL_LMS_USERSKILL_MAP")
-public class UserSkillMap {
+public class UserSkillMap implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4699717899183000961L;
+
 	@Id
 	@Column
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_skill_seq")
+    @GenericGenerator(name = "user_skill_seq", strategy = "com.ninja.lms.config.UserSkillIDGenerator",
+            parameters = {
+            @Parameter(name = UserIDGenerator.INCREMENT_PARAM, value = "1"),
+            @Parameter(name = UserIDGenerator.VALUE_PREFIX_PARAMETER, value = "US"),
+            @Parameter(name = UserIDGenerator.NUMBER_FORMAT_PARAMETER, value = "%02d") })
 	private String userSkillId;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="user_id", insertable = false, updatable = false)
+	@ManyToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST})
+	@JoinColumn(name="user_id", insertable = true, updatable = true)
 	@JsonIgnore
 	private User user;
 	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name ="skill_id", insertable = false, updatable = false)
+	@OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST})
+	@JoinColumn(name ="skill_id", insertable = true, updatable = true)
 	@JsonIgnore
 	private Skill skill;
 	
@@ -87,7 +105,7 @@ public class UserSkillMap {
 	public void setMonthsOfExp(int monthsOfExp) {
 		this.monthsOfExp = monthsOfExp;
 	}
-
+	@JsonIgnore
 	public Timestamp getCreationTime() {
 		return creationTime;
 	}
@@ -95,7 +113,7 @@ public class UserSkillMap {
 	public void setCreationTime(Timestamp creationTime) {
 		this.creationTime = creationTime;
 	}
-
+	@JsonIgnore
 	public Timestamp getLastModTime() {
 		return lastModTime;
 	}

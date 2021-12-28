@@ -5,34 +5,34 @@ import java.util.Set;
 
 public class UserWithSkillsDisplayDto {
 	
-	private String userId;
-	private String userName;
-	private String location;
-	private Set<SkillExpDto> skills = new HashSet<>();
+	private String id;
+	private String firstName;
+	private String lastName;
+	private Set<SkillExpDto> skillmap = new HashSet<>();
 	
-	public String getUserId() {
-		return userId;
+	public String getId() {
+		return id;
 	}
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setId(String id) {
+		this.id = id;
 	}
-	public String getUserName() {
-		return userName;
+	public String getFirstName() {
+		return firstName;
 	}
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
-	public String getLocation() {
-		return location;
+	public String getLastName() {
+		return lastName;
 	}
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
-	public Set<SkillExpDto> getSkills() {
-		return skills;
+	public Set<SkillExpDto> getSkillmap() {
+		return skillmap;
 	}
-	public void setSkills(Set<SkillExpDto> skills) {
-		this.skills = skills;
+	public void setSkillmap(Set<SkillExpDto> skillmap) {
+		this.skillmap = skillmap;
 	}
 
 }

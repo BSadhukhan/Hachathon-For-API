@@ -1,5 +1,6 @@
 package com.ninja.lms.entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
@@ -8,19 +9,30 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @Entity
 @Table(name="TBL_LMS_SKILL_MASTER")
-public class Skill {
+public class Skill implements Serializable{
 	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9034210109506168850L;
+
 	@Id
 	@Column
+	@ApiModelProperty(hidden=true)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int skillId;
 	
 	@Column
+	@NotBlank(message = "Skill Name may not be blank")
 	String skillName;
 	/*
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "skill")
@@ -38,7 +50,7 @@ public class Skill {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Skill(int skillId, String skillName, UserSkillMap userSkill, Timestamp creationTime, Timestamp lastModTime) {
+	public Skill(int skillId, String skillName, Timestamp creationTime, Timestamp lastModTime) {
 		super();
 		this.skillId = skillId;
 		this.skillName = skillName;
