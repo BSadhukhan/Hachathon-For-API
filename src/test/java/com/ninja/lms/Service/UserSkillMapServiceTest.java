@@ -1,12 +1,16 @@
 package com.ninja.lms.Service;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.doNothing;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -16,9 +20,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
+
+import javax.validation.constraints.AssertFalse;
+
+import com.ninja.lms.dto.UserSkillMapDto;
 import com.ninja.lms.entity.Skill;
 import com.ninja.lms.entity.User;
 import com.ninja.lms.entity.UserSkillMap;
+import com.ninja.lms.exception.DataNotFoundException;
 import com.ninja.lms.repository.SkillRepository;
 import com.ninja.lms.repository.UserRepository;
 import com.ninja.lms.repository.UserSkillMapRepository;
@@ -48,7 +57,7 @@ public class UserSkillMapServiceTest {
 	}
 
 	@Test
-	public void fetchUserSkillMapDataByIdTest() throws Exception {
+	public void fetchUserSkillMapDataByUserIdTest() throws Exception {
 		UserSkillMap mockUserSkillMap_1 = populateUserSkillMapData().get(1);
 		Mockito.when(userSkillMapRepo.findById(mockUserSkillMap_1.getUserSkillId())).thenReturn(Optional.of(mockUserSkillMap_1));
 		assertEquals(mockUserSkillMap_1.getUserSkillId(), this.usrSkillMapService.fetchUserSkillMapDataById(mockUserSkillMap_1.getUserSkillId()).getUser_skill_id());
@@ -68,6 +77,20 @@ public class UserSkillMapServiceTest {
 		Mockito.when(userSkillMapRepo.save(requestMockUserSkillMap)).thenReturn(requestMockUserSkillMap);
 		assertEquals(requestMockUserSkillMap.getSkill().getSkillId(), userSkillMapRepo.save(requestMockUserSkillMap).getSkill().getSkillId());
 	}
+	
+	@Test
+	void updateUserSkillMapThrowsDataNotFoundExceptionTest() throws Exception {
+		String userSkillId="US99";
+		
+		UserSkillMap requestMockUserSkillMap = populateUserSkillMapData().get(1);
+		UserSkillMapDto responseUserSkillMapDto = populateUserSkillMapDto(requestMockUserSkillMap);
+		
+		Mockito.when(this.userSkillMapRepo.findById(userSkillId)).thenThrow(new DataNotFoundException("User Skill Id- " + userSkillId + " Not Found !!"));
+
+		Assertions.assertThrows(DataNotFoundException.class, () -> this.usrSkillMapService.updateUserSkillMap(responseUserSkillMapDto, userSkillId));
+
+	}
+	
 
 	@Test
 	void updateUserSkillMapTest() throws Exception {
@@ -79,6 +102,24 @@ public class UserSkillMapServiceTest {
 		Mockito.when(userSkillMapRepo.save(requestMockUserSkillMap)).thenReturn(requestMockUserSkillMap);
 		assertEquals(requestMockUserSkillMap.getMonthsOfExp(), userSkillMapRepo.save(requestMockUserSkillMap).getMonthsOfExp());
 
+	}
+	
+	@Test
+	void deleteUserSkillThrowsDataNotFoundExceptionTest() {
+    	String userSkillId="US99";
+		Mockito.when(this.userSkillMapRepo.findById(userSkillId)).thenThrow(new DataNotFoundException("User Skill Id- " + userSkillId + " Not Found !!"));
+
+		Assertions.assertThrows(DataNotFoundException.class, () -> this.usrSkillMapService.deleteUserSkillMap(userSkillId));
+	}
+	
+	@Test
+	void deleteUserSkillTest() {
+		UserSkillMap requestMockUserSkillMap = populateUserSkillMapData().get(0);
+		Optional optional = userSkillMapRepo.findById(requestMockUserSkillMap.getUserSkillId());
+		
+		doNothing().when(this.userSkillMapRepo).deleteById(requestMockUserSkillMap.getUserSkillId());
+		assertEquals(Optional.empty(), optional);
+		
 	}
 
 	private List<UserSkillMap> populateUserSkillMapData() {
@@ -94,11 +135,11 @@ public class UserSkillMapServiceTest {
 		 * userLinkedinUrl, String userEduUg, String userEduPg, String userComments,
 		 * String userVisaStatus, Timestamp creationTime, Timestamp lastModTime,
 		 */
-		User mockUser_1 = new User("US01", "Baisali", "Sadhukhan", 8553334123L, "Pittsburgh", "EST",
+		User mockUser_1 = new User("U01", "Baisali", "Sadhukhan", 8553334123L, "Pittsburgh", "EST",
 				"https://www.linkedin.com/in/BaisaliSadukhan", "UG", "PG", "Working in Hachathon TDD", "H4-EAD",
 				new Timestamp(utilDate.getTime()), new Timestamp(utilDate.getTime()));
 
-		User mockUser_2 = new User("US02", "Shyla", "Aithala", 8762653456L, "Dallas", "CST",
+		User mockUser_2 = new User("U02", "Shyla", "Aithala", 8762653456L, "Dallas", "CST",
 				"https://www.linkedin.com/in/ShylaAithala", "UG", "PG", "Working in Hachathon TDD", "H4-EAD",
 				new Timestamp(utilDate.getTime()), new Timestamp(utilDate.getTime()));
 
@@ -134,5 +175,16 @@ public class UserSkillMapServiceTest {
 		mapList.add(userSkill_5);
 
 		return mapList;
+	}
+	
+	private UserSkillMapDto populateUserSkillMapDto(UserSkillMap userSkill) {
+		UserSkillMapDto mapDto = new UserSkillMapDto();
+		
+		mapDto.setUser_skill_id(userSkill.getUserSkillId());
+		mapDto.setUser_id(userSkill.getUser().getUserId());
+		mapDto.setSkill_id(userSkill.getSkill().getSkillId());
+		mapDto.setMonths_of_exp(userSkill.getMonthsOfExp());
+		
+		return mapDto;
 	}
 }

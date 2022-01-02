@@ -1,5 +1,7 @@
 package com.ninja.lms.dto;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,13 +14,19 @@ public class UserDto {
 	@ApiModelProperty(hidden=true)
 	private String user_id;
 	
-	@NotNull(message = "Name should not blank !!")
+	@NotBlank(message = "{NotBlank.Name}")
 	private String name;
 	
+	@Min(value = 10, message="{Size.PhoneNumber}")
+	@NotNull(message = "{NotNull.PhoneNumber}")
 	private long phone_number;
 	
+	@NotBlank(message = "{NotBlank.Location}")
 	private String location;
+	
+	@NotBlank(message = "{NotBlank.TimeZone}")
 	private String time_zone;
+	
 	private String linkedin_url;
 	
 	@JsonInclude(value = Include.NON_NULL)
@@ -28,6 +36,7 @@ public class UserDto {
 	private String education_pg;
 	
 	@JsonInclude(value = Include.NON_NULL)
+	@NotBlank(message = "{NotBlank.VisaStatus}")
 	private String visa_status;
 	
 	@JsonInclude(value = Include.NON_NULL)

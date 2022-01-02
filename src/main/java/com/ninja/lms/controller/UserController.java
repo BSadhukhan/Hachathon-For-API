@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +34,7 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	
-	//Fetch all User Details
+	/** Fetch all User Details **/
 	@GetMapping("/Users")
 	@ApiOperation(value = "List all users")
 	public ResponseEntity<List<UserDto>> getAllUsers() {
@@ -40,7 +42,7 @@ public class UserController {
 		return new ResponseEntity<>(userSkillDtoList, HttpStatus.OK);
 	}
 	
-	//Fetch User Details by User ID
+	/** Fetch User Details by User ID **/
 	@GetMapping("/Users/{id}")
 	@ApiOperation(value = "List user by USER_ID")
 	public ResponseEntity<UserDto> getUserById(@PathVariable("id") String userId) {
@@ -49,26 +51,26 @@ public class UserController {
 		return new ResponseEntity<>(userdto, HttpStatus.OK);
 	}
 
-	//Create User
+	/** Create User **/
 	@PostMapping("/Users")
 	@ApiOperation(value = "Create a new user")
-	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) throws Exception{
+	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) throws Exception{
 		
 		UserDto responseDto = new UserDto();
 		responseDto = userService.insertUser(userDto);
 		return ResponseEntity.created(new URI("/Users/" + responseDto.getUser_id())).body(responseDto);
 	}
 
-	//Update User
+	/** Update User **/
 	@PutMapping("/Users/{id}")
 	@ApiOperation(value = "Update an existing user")
-	public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable("id") String userId) throws Exception {
+	public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable("id") String userId) throws Exception {
 		
 		UserDto responseDto = userService.updateUser(userDto, userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
-	//Delete User
+	/** Delete User **/
 	@DeleteMapping("/Users/{id}")
 	@ApiOperation(value = "Delete an existing user")
 	public ResponseEntity<Map<String, String>> deleteUser(@PathVariable("id") String id) {

@@ -131,19 +131,7 @@ public class SkillControllerTest {
 	@WithMockUser(username="APIPROCESSING", password="2xx@Success")
 	public void getSkillByIdThrowsValidationExceptionWhenParamEmpty() throws Exception {
 
-		Skill mockSkill_1 = populateSkillData().get(1);
-		Optional<Skill> optionalSkill = Optional.of(mockSkill_1);
-
-		SkillDto responseSkillDto = new SkillDto();
-		responseSkillDto.setSkill_id(mockSkill_1.getSkillId());
-		responseSkillDto.setSkill_name(mockSkill_1.getSkillName());
-		String expectedJSON = mapper.writeValueAsString(responseSkillDto);
-
 		String uri = "/Skills/" + "abc123";
-
-		Mockito.when(mockSkillRepo.findById(mockSkill_1.getSkillId())).thenReturn(optionalSkill);
-
-		Mockito.when(mockSkillService.getSkill(mockSkill_1.getSkillId())).thenReturn(responseSkillDto);
 
 		RequestBuilder requestBuilder = MockMvcRequestBuilders
 				.get(uri)

@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,11 +29,13 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(tags = "User Skill Map API", value = "UserSkillMapAPI")
+@Validated
 public class UserSkillMapController {
 	
 	@Autowired
 	UserSkillMapService service;
 	
+	/** Controller method for fetching all users-skills details **/
 	@GetMapping("/UserSkills")
 	@ApiOperation(value = "List all users-skills")
 	public ResponseEntity<List<UserSkillMapDto>> getAllUserSkillMapData(){
@@ -41,6 +44,7 @@ public class UserSkillMapController {
 		return new ResponseEntity<>(userSkillMapList, HttpStatus.OK);
 	}
 	
+	/** Controller method for fetching user-skills details by user-skill id **/
 	@GetMapping("/UserSkills/{id}")
 	@ApiOperation(value = "List user-skill details by USER_SKILL_ID")
 	public ResponseEntity<UserSkillMapDto> getUserSkillMapDataById(@PathVariable("id") String userSkillId){
@@ -49,6 +53,7 @@ public class UserSkillMapController {
 		return new ResponseEntity<>(userSkill, HttpStatus.OK);
 	}
 	
+	/** Controller method for creating new user-skills details **/
 	@PostMapping("/UserSkills")
 	@ApiOperation(value = "Create a new user skill mapping")
 	public ResponseEntity<UserSkillMapDto> createUserSkillMap(@Valid @RequestBody UserSkillMapDto userSkillMap) throws URISyntaxException{
@@ -57,14 +62,16 @@ public class UserSkillMapController {
 		return ResponseEntity.created(new URI("/UserSkills/" + mapDto.getUser_skill_id())).body(mapDto);
 	}
 	
+	/** Controller method for updating existing user-skills details **/
 	@PutMapping("/UserSkills/{id}")
 	@ApiOperation(value = "Update an existing user skill mapping")
-	public ResponseEntity<UserSkillMapDto> updateUserSkillMap(@RequestBody UserSkillMapDto userSkillMap, @PathVariable("id") String userSkillId){
+	public ResponseEntity<UserSkillMapDto> updateUserSkillMap(@Valid @RequestBody UserSkillMapDto userSkillMap, @PathVariable("id") String userSkillId){
 		
 		UserSkillMapDto mapDto = service.updateUserSkillMap(userSkillMap, userSkillId);
 		return new ResponseEntity<>(mapDto, HttpStatus.CREATED);
 	}
 	
+	/** Controller method for deleting existing user-skills details **/
 	@DeleteMapping("/UserSkills/{id}")
 	@ApiOperation(value = "Delete an existing user skill mapping")
 	public ResponseEntity<Map<String, String>> deleteUserSkillMap(@PathVariable("id") String userSkillId){
@@ -72,6 +79,7 @@ public class UserSkillMapController {
 		
 		service.deleteUserSkillMap(userSkillId);
 		
+		/** To set customized JSON output after successfully delete the record **/
 		String msg = "The record has been deleted !!";
 		responseMap.put("user_skill_id", userSkillId);
 		responseMap.put("message_response", msg);

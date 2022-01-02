@@ -30,19 +30,14 @@ public class LmsApiApplication {
 				.apiInfo(getApiInformation())
 				.select()
 				.apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
-				//.apis(RequestHandlerSelectors.basePackage("com.ninja.lms"))
 				.paths(PathSelectors.any())
 				.build();
-	/*			
-		.tags(new Tag("Users API", "These endpoints are used to manage the users details."), 
-						new Tag("Skills API", "These endpoints are used to manage the skills details."),
-						new Tag("User Skill Map API", "These endpoints are used to manage the user-skill-map details."));
-						*/
+	
 	}
 	
 	private ApiInfo getApiInformation(){
 		
-		Contact contact = new Contact("Team -Numpy Ninja Tech Cruncher","https://www.numpyninja.com/","");
+		Contact contact = new Contact("Team - Code Cruncher ","https://www.numpyninja.com/","");
 		
 		return new ApiInfoBuilder()
 	              .title("API Documentation For HACKATHON 21-22")
@@ -51,17 +46,5 @@ public class LmsApiApplication {
 	              .version("1.0.0")
 	              .build();
 	}
-	
-/*	
-	private ApiInfo getApiInformation(){
-        return new ApiInfo("API Documentation For HACKATHON 21-22",
-                "LMS API created using Spring Boot",
-                "1.0",
-                "API Terms of Service URL",
-                "NumPy-Ninja", 
-                "API License",
-                "API License URL"
-                );
-    }
-*/
+
 }

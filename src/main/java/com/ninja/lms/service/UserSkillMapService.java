@@ -34,6 +34,7 @@ public class UserSkillMapService {
 	private final String SUCCESS_CREATE_MSG = "Successfully Created !!";
 	private final String SUCCESS_UPDATE_MSG = "Successfully Updated !!";
 
+	/** Service method For Fetching all users-skills details **/
 	public List<UserSkillMapDto> fetchAllUserSkillMapData() {
 
 		List<UserSkillMapDto> returnList = new ArrayList<UserSkillMapDto>();
@@ -41,6 +42,8 @@ public class UserSkillMapService {
 
 		for (UserSkillMap itr : userSkillMapList) {
 
+			/** Method calling for transferring user-skill details from user-skill entity to user-skill Dto. 
+			 * UserSkillMapDto is used for displaying customized JSON output **/
 			UserSkillMapDto mapDto = populateUserSkillMapDto(itr, null);
 
 			returnList.add(mapDto);
@@ -49,6 +52,7 @@ public class UserSkillMapService {
 		return returnList;
 	}
 
+	/** Service method For Fetching user-skill details by user-skill id **/
 	public UserSkillMapDto fetchUserSkillMapDataById(String userSkillId) {
 		UserSkillMapDto mapDto = new UserSkillMapDto();
 		UserSkillMap userSkill = new UserSkillMap();
@@ -58,11 +62,15 @@ public class UserSkillMapService {
 			throw new DataNotFoundException("UserSkillId - " + userSkillId + " Not Found !!");
 		} else {
 			userSkill = optional.get();
+			
+			/** Method calling for transferring user-skill details from user-skill entity to user-skill Dto. 
+			 * UserSkillMapDto is used for displaying customized JSON output **/
 			mapDto = populateUserSkillMapDto(userSkill, null);
 		}
 		return mapDto;
 	}
 
+	/** Service method For creating new user-skill details **/
 	public UserSkillMapDto createUserSkillMap(UserSkillMapDto userSkillMapDto) {
 		Date utilDate = new Date();
 		UserSkillMap userSkillEntity = new UserSkillMap();
@@ -90,10 +98,13 @@ public class UserSkillMapService {
 		userSkillEntity.setCreationTime(new Timestamp(utilDate.getTime()));
 		userSkillEntity.setLastModTime(new Timestamp(utilDate.getTime()));
 
+		/** Method calling for transferring user-skill details from user-skill entity to user-skill Dto. 
+		 * UserSkillMapDto is used for displaying customized JSON output **/
 		UserSkillMapDto newUserSkillDto = populateUserSkillMapDto(userSkillMapRepo.save(userSkillEntity), SUCCESS_CREATE_MSG);
 		return newUserSkillDto;
 	}
 	
+	/** Service method For updating existing user-skill details **/
 	public UserSkillMapDto updateUserSkillMap(UserSkillMapDto userSkillMapDto, String userSkillId) {
 		Date utilDate = new Date();
 		
@@ -105,23 +116,27 @@ public class UserSkillMapService {
 		
 		String existingUserId = existingMapEntity.getUser().getUserId();
 		String modifiedUserId = userSkillMapDto.getUser_id();
+		//System.out.println("existingUserId :: " + existingUserId + "  ::  "+modifiedUserId);
 		if ((modifiedUserId != null || modifiedUserId != "") && !existingUserId.equalsIgnoreCase(modifiedUserId)) {
-			throw new DataNotFoundException("User_Id-> " + modifiedUserId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
+			throw new DataNotFoundException("This User_ID can not be updated as User_Id-> " + modifiedUserId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
 		}
 		
 		int existingSkillId = existingMapEntity.getSkill().getSkillId();
 		int modifiedSkillId = userSkillMapDto.getSkill_id();
 		if (modifiedSkillId != 0 && existingSkillId != modifiedSkillId) {
-			throw new DataNotFoundException("Skill_Id-> " + modifiedSkillId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
+			throw new DataNotFoundException("This Skill_ID can not be updated as Skill_Id-> " + modifiedSkillId + " is not mapped with User_Skill_Id-> " + userSkillId + " !!");
 		}
 
 		existingMapEntity.setMonthsOfExp(userSkillMapDto.getMonths_of_exp());
 		existingMapEntity.setLastModTime(new Timestamp(utilDate.getTime()));
 
+		/** Method calling for transferring user-skill details from user-skill entity to user-skill Dto. 
+		 * UserSkillMapDto is used for displaying customized JSON output **/
 		UserSkillMapDto newUserSkillDto = populateUserSkillMapDto(userSkillMapRepo.save(existingMapEntity), SUCCESS_UPDATE_MSG);
 		return newUserSkillDto;
 	}
 
+	/** Service method For deleting existing user-skill details **/
 	public void deleteUserSkillMap(String userSkillId) {
 
 		boolean exists = userSkillMapRepo.existsById(userSkillId);

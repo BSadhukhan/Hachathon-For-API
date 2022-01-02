@@ -1,5 +1,6 @@
 package com.ninja.lms.dto;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,7 +16,7 @@ public class UserSkillMapDto {
 	private String user_id;
 	private int skill_id;	
 	
-	@NotNull(message = "Month of experience is required")
+	@NotNull(message = "{NotNull.MonthOfExp}")
 	private int months_of_exp;
 	
 	@ApiModelProperty(hidden=true)

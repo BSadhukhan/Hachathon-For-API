@@ -1,5 +1,6 @@
 package com.ninja.lms.exception;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,10 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolation;
+
+import org.hibernate.JDBCException;
 import org.hibernate.exception.ConstraintViolationException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.util.MimeType;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -22,11 +29,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ninja.lms.dto.ExceptionResponse;
 
 @ControllerAdvice
 @RestController
 public class CustomizedResponseEntityExceptionHandler{
+	
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	public ResponseEntity<ExceptionResponse> handleMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
@@ -58,18 +69,14 @@ public class CustomizedResponseEntityExceptionHandler{
 	    return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
 	}
 	
-	@ExceptionHandler(ConstraintViolationException.class)
-	public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
-	    
-		String provided = ex.getConstraintName();
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ExceptionResponse> handleMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request){
 		
-		System.out.println(ex.getSQL());
-	    
-	    String error = provided + " is already mapped !!";
-	    
-	    ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), error, ex.getLocalizedMessage());
-
-	    return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+		String provided = "Malformed JSON request";
+		
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), provided, ex.getLocalizedMessage());
+		
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -86,14 +93,50 @@ public class CustomizedResponseEntityExceptionHandler{
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler(Exception.class)
-	public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
+/*	
+	@ExceptionHandler({TransactionSystemException.class})
+	public ResponseEntity<ExceptionResponse> handleConstraintViolationException(Exception ex, WebRequest request) throws JsonProcessingException {
+		System.out.println("handleConstraintViolationException");
+		Throwable cause = ((TransactionSystemException) ex).getRootCause();
+	    if (cause instanceof ConstraintViolationException) {        
 
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getLocalizedMessage(), request.getDescription(false));
-
-		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	        javax.validation.ConstraintViolationException consEx= (javax.validation.ConstraintViolationException) cause;
+			
+			  final List<String> errors = new ArrayList<String>(); 
+			  for (final ConstraintViolation<?> violation : consEx.getConstraintViolations()) {
+			  errors.add(violation.getPropertyPath() + ": " + violation.getMessage()); }
+			  String str_JSON = mapper.writeValueAsString(errors);
+			 
+	        
+	        //String provided = consEx.getConstraintName();
+			
+		    //String error = provided + " is already mapped !!";
+		    
+	        ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), str_JSON, ex.getLocalizedMessage()); 
+	        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+	    }
+	    
+	    ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getLocalizedMessage(), request.getDescription(false)); 
+	   
+		
+	    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	}
+*/	
 	
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+	    
+		String provided = ex.getConstraintName();
+		
+	    String error = provided + " is already mapped !!";
+	    
+	    ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), error, ex.getLocalizedMessage());
+
+	    return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+	}
+
+	
+
 	@ExceptionHandler(FieldValidationException.class)
     public final ResponseEntity<ExceptionResponse> handlerValidationException(FieldValidationException ex, WebRequest request){
  
@@ -116,6 +159,14 @@ public class CustomizedResponseEntityExceptionHandler{
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
 		   
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.NO_CONTENT);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
+		System.out.println("handleAllExceptions");
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getLocalizedMessage(), request.getDescription(false));
+
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

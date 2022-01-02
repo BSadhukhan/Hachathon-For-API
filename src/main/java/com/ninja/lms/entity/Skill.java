@@ -32,7 +32,6 @@ public class Skill implements Serializable{
 	private int skillId;
 	
 	@Column
-	@NotBlank(message = "Skill Name may not be blank")
 	String skillName;
 	/*
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "skill")

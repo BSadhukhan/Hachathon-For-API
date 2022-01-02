@@ -157,9 +157,11 @@ public class UserSkillMapControllerTest {
 	public void createUserSkillMapTest() throws Exception {
 		String uri = "/UserSkills";
 		Date utilDate = new Date();
+
 		/*
-		 * String userId, String userFirstName, String userLastName, long userPhoneNumber, String userLocation, String userTimeZone, String userLinkedinUrl, 
-		 * String userEduUg, String userEduPg, String userComments, String userVisaStatus, Timestamp creationTime, Timestamp lastModTime, 
+		 * String userId, String userFirstName, String userLastName, long userPhoneNumber, String userLocation, String userTimeZone, 
+		 * String userLinkedinUrl, String userEduUg, String userEduPg, String userComments, String userVisaStatus, Timestamp creationTime, 
+		 * Timestamp lastModTime
 		 */
 		User requestMockUser = new User("US03", "Mounika", "Mounika", 5467892340L, "Minneapolis", "EST", "https://www.linkedin.com/in/MounikaMounika", 
 				"UG", "PG", "Working in Hachathon TDD", "H4-EAD", new Timestamp(utilDate.getTime()), new Timestamp(utilDate.getTime()));

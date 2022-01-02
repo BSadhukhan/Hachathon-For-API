@@ -27,7 +27,7 @@ public class SkillService {
 	final String SUCCESS_CREATE_MSG = "Successfully Created !!";
 	final String SUCCESS_UPDATE_MSG = "Successfully Updated !!";
 	
-	//get all skills
+	/** Service method For Fetching all skill details **/
     public List<SkillDto> getSkills() throws Exception{
     	
     	List<Skill> skillList = skillRepo.findAll();
@@ -37,44 +37,44 @@ public class SkillService {
     	List<SkillDto> skillDtoList = new ArrayList<SkillDto>();
     	
     	for(Skill skill : skillList) {
+    		
+    		/** Method calling for transferring skill details from skill entity to skill Dto. SkillDto is used for displaying customized JSON output **/
     		SkillDto skillDto = mapEntitySkillToSkillDto(skill, null);
     		skillDtoList.add(skillDto);
     	}
     	return skillDtoList;
     }
 	
+    /** Service method For Fetching skill details by skill id **/
 	public SkillDto getSkill(int skillId){
         
 		Optional<Skill> skill = skillRepo.findById(skillId);
         if (skill.isEmpty()) {
         	throw new DataNotFoundException("Skill(id- " + skillId + ") Not Found !!");
         }
+        
+        /** Method calling for transferring skill details from skill entity to skill Dto. SkillDto is used for displaying customized JSON output **/
         SkillDto skillDto = mapEntitySkillToSkillDto(skill.get(), null);
         return skillDto;
     }
 	
+	/** Service method creating new skill details **/
     public SkillDto saveSkill(SkillDto skillDto ){
-
-		/*
-		 * if(null == skillDto.getSkill_name() || skillDto.getSkill_name().equals("")) {
-		 * throw new
-		 * FieldValidationException("Failed to create new Skill details as Skill Name is set to blank / null !!"
-		 * ); }else
-		 */ 
-    	if(checkFieldContainsNumberOrSpclChar(skillDto.getSkill_name())) {
-        	throw new FieldValidationException("Failed to create new Skill details as Skill Name contains numbers / special characters !!");
+    	String skillName = skillDto.getSkill_name();
+    	
+		if(checkFieldContainsNumberOrSpclChar(skillName)) {
+        	throw new FieldValidationException("Failed to create new Skill details as Skill Name contains special characters !!");
         }
     	
+    	
     	List<Skill> skillList = skillRepo.findAll();
-    	if(skillList.size() == 0) {
-    		throw new DataNotFoundException("No Skills data available !!");
-    	}
     	
-    	String skillName = skillDto.getSkill_name();
-    	boolean isSkillPresent = checkDuplicateSkillName(skillList, skillName);
-    	
-    	if(isSkillPresent) {
-    		throw new FieldValidationException("Failed to create new Skill details as Skill already exists !!");
+    	/** Checking skill name to prevent duplicate entry **/
+    	if(skillList.size() > 0) {
+    		boolean isSkillPresent = checkDuplicateSkillName(skillList, skillName);
+        	if(isSkillPresent) {
+        		throw new FieldValidationException("Failed to create new Skill details as Skill already exists !!");
+        	}
     	}
     	
     	Skill skill = new Skill();
@@ -85,35 +85,32 @@ public class SkillService {
         
         Skill newSkill = skillRepo.save(skill);
         
+        /** Method calling for transferring skill details from skill entity to skill Dto. SkillDto is used for displaying customized JSON output **/
         SkillDto newSkillDto = mapEntitySkillToSkillDto(newSkill, SUCCESS_CREATE_MSG);
         
         return newSkillDto;
     }
     
+    /** Service method updating existing skill details **/
     public SkillDto updateSkill(SkillDto skillDto, int skillId) {
     	
-    	if(null == skillDto.getSkill_name() || skillDto.getSkill_name().equals("")) {
-        	throw new FieldValidationException("Failed to update existing Skill details as Skill Name is set to blank !!");
-        	
-        }else if(checkFieldContainsNumberOrSpclChar(skillDto.getSkill_name())) {
-        	throw new FieldValidationException("Failed to update existing Skill details as Skill Name contains numbers / special characters !!");
+    	if(checkFieldContainsNumberOrSpclChar(skillDto.getSkill_name())) {
+        	throw new FieldValidationException("Failed to update existing Skill details as Skill Name contains special characters !!");
         }
     	
     	List<Skill> skillList = skillRepo.findAll();
+    	
     	if(skillList.size() == 0) {
-    		throw new DataNotFoundException("No Skills data available !!");
+    		throw new DataNotFoundException("No Skill data is available !!");
     	}
     	
-    	//Skill existingSkill = skillRepo.findById(skillId).orElse(null);
+    	/** Checking skill id exists or not **/
     	boolean isSkillIdExists = checkForExistingSkillId(skillList, skillId);
     	if(!isSkillIdExists) {
     		throw new DataNotFoundException("Skill(id- " + skillId + ") Not Found !!");
     	}
-    	boolean isSkillPresent = checkDuplicateSkillName(skillList, skillDto.getSkill_name());
-    	if(isSkillPresent) {
-    		throw new FieldValidationException("Failed to update existing Skill details as Skill already exists !!");
-    	}
     	
+    	/** Prepare Skill object with existing data by skill id  **/
     	Skill existingSkill = new Skill();
     	for(Skill itr : skillList) {
     		if(itr.getSkillId() == skillId) {
@@ -121,17 +118,28 @@ public class SkillService {
     			break;
     		}
     	}
+    	if( !existingSkill.getSkillName().equals("") && !existingSkill.getSkillName().equalsIgnoreCase(skillDto.getSkill_name()) ) {
+	    	/** Checking skill name to prevent duplicate entry **/
+	    	boolean isSkillPresent = checkDuplicateSkillName(skillList, skillDto.getSkill_name());
+	    	if(isSkillPresent) {
+	    		throw new FieldValidationException("Failed to update existing Skill details as Skill already exists !!");
+	    	}
+    	}
+    	
     	SkillDto newSkillDto = new SkillDto();
     	Date utilDate = new Date();
-		
+    	
+		/** Set the existing skill object with new data for PUT operation **/
     	existingSkill.setSkillName(skillDto.getSkill_name());
     	existingSkill.setLastModTime(new Timestamp(utilDate.getTime()));
     	
+    	/** Method calling for transferring skill details from skill entity to skil Dto. SkillDto is used for displaying customized JSON output **/
     	newSkillDto = mapEntitySkillToSkillDto(skillRepo.save(existingSkill), SUCCESS_UPDATE_MSG);
     	
     	return newSkillDto;
 	}
     
+    /** Service method deleting existing skill details by skill id **/
     public void deleteSkill(int skillId) {
     	
     	boolean exists = skillRepo.existsById(skillId);
@@ -153,7 +161,7 @@ public class SkillService {
     
     private boolean checkFieldContainsNumberOrSpclChar(String inputStr) {
     	boolean isNotvalid = false;
-    	Pattern pattern = Pattern.compile("[^a-zA-Z \b]");
+    	Pattern pattern = Pattern.compile("[^a-zA-Z0-9. \b]");
         Matcher matcher = pattern.matcher(inputStr);
         isNotvalid = matcher.find();
         

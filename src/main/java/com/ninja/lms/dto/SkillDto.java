@@ -1,7 +1,6 @@
 package com.ninja.lms.dto;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -13,7 +12,7 @@ public class SkillDto {
 	@ApiModelProperty(hidden=true)
 	private int skill_id;
 	
-	@NotBlank(message = "Skill name is required")
+	@NotBlank(message = "{NotBlank.Skill_Name}")
 	private String skill_name;
 	
 	@ApiModelProperty(hidden=true)

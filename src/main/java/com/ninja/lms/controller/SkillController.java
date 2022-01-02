@@ -34,17 +34,20 @@ public class SkillController {
 	@Autowired
 	SkillService skillService;
 
+	/** Controller method for fetching all skill details **/
 	@GetMapping("/Skills")
 	@ApiOperation(value = "List all skills")
 	public ResponseEntity<List<SkillDto>> getAllSkills() throws Exception {
 		return new ResponseEntity<>(skillService.getSkills(),HttpStatus.OK);
 	}
 
+	/** Controller method for fetching skill detail by skill id **/
 	@GetMapping("/Skills/{id}")
 	@ApiOperation(value = "List skill by SKILL_ID")
 	public ResponseEntity<SkillDto> getSkillById(@PathVariable("id") String paramSkillId) {
-		
 		int skillId = 0;
+		
+		/** Checking request parameter is valid or invalid **/
 		if(null == paramSkillId || paramSkillId.equals("")) {
 			throw new FieldValidationException("Skill ID - " + paramSkillId + " is invalid !!");
 		} else {
@@ -55,10 +58,12 @@ public class SkillController {
 				throw new FieldValidationException("Skill ID - " + paramSkillId + " is invalid !!");
 			}
 		}
+		/** Calling service method for getting skill detail by skill id **/
 		SkillDto skillDto = skillService.getSkill(skillId);
 		return new ResponseEntity<>(skillDto, HttpStatus.OK);
 	}
 	
+	/** Controller method for creating new skill details **/
 	@PostMapping("/Skills")
 	@ApiOperation(value = "Create a new skill")
     public ResponseEntity<SkillDto> createSkill(@Valid @RequestBody SkillDto skilldto) throws URISyntaxException{
@@ -67,10 +72,13 @@ public class SkillController {
     	return ResponseEntity.created(new URI("/Skills/" + newSkillDto.getSkill_id())).body(newSkillDto);
     }
 
+	/** Controller method for updating existing skill details **/
 	@PutMapping("/Skills/{id}")
 	@ApiOperation(value = "Update an existing skill")
-	public ResponseEntity<SkillDto> updateSkill(@RequestBody SkillDto skilldto, @PathVariable("id") String paramSkillId) {
+	public ResponseEntity<SkillDto> updateSkill(@Valid @RequestBody SkillDto skilldto, @PathVariable("id") String paramSkillId) {
 		int skillId = 0;
+		
+		/** Checking request parameter is valid or invalid **/
 		if(null == paramSkillId || paramSkillId.equals("")) {
 			throw new FieldValidationException("Skill ID - " + paramSkillId + " is invalid !!");
 		} else {
@@ -85,10 +93,13 @@ public class SkillController {
 		return new ResponseEntity<>(newSkillDto, HttpStatus.CREATED);
 	}
 	
+	/** Controller method for deleting existing skill details **/
 	@DeleteMapping("/Skills/{id}")
 	@ApiOperation(value = "Delete an existing skill")
     public ResponseEntity<Map<String, String>> deleteSkill(@PathVariable("id") String paramSkillId) {
 		int skillId = 0;
+		
+		/** Checking request parameter is valid or invalid **/
 		if(null == paramSkillId || paramSkillId.equals("")) {
 			throw new FieldValidationException("Skill ID - " + paramSkillId + " is invalid !!");
 		} else {
@@ -104,6 +115,7 @@ public class SkillController {
 		
     	skillService.deleteSkill(skillId);
     	
+    	/** To set customized JSON output after successfully delete the record **/
     	String msg = "The record has been deleted !!";
 		responseMap.put("Skill_Id", paramSkillId);
 		responseMap.put("message_response", msg);

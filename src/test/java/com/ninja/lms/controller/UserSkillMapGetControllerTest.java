@@ -124,7 +124,7 @@ public class UserSkillMapGetControllerTest {
 	@WithMockUser(username="APIPROCESSING", password="2xx@Success")
 	public void getUserBySkillId_InValid_Test() throws Exception {
 		String skillId = "abc";
-		String uri = "/UserSkillBySkill/" + skillId;
+		String uri = "/UsersSkillsMap/" + skillId;
 		/*
 		String errorMsg = "Skill ID- " + skillId + " is invalid !!";
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), errorMsg, uri);
@@ -154,7 +154,7 @@ public class UserSkillMapGetControllerTest {
 	@WithMockUser(username="APIPROCESSING", password="2xx@Success")
 	public void getUserBySkillIdTest() throws Exception {
 		int skillId = 114;
-		String uri = "/UserSkillBySkill/" + skillId;
+		String uri = "/UsersSkillsMap/" + skillId;
 		
 		List<User> userList = new ArrayList<User>();
 		userList.add(populateUserWithSkillData().get(0));

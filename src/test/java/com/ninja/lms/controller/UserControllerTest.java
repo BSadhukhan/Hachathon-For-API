@@ -155,13 +155,18 @@ public class UserControllerTest {
 		Date utilDate = new Date();
 		
 		/*
-		 * String userId, String userName, long phoneNumber, String location, String
-		 * timeZone, String linkedinUrl, String educationUG, String educationPG, String
-		 * visaStatus, String userComments, String messageResponse
+		 * String userId, String userFirstName, String userLastName, long userPhoneNumber, String userLocation, String userTimeZone, 
+		 * String userLinkedinUrl, String userEduUg, String userEduPg, String userComments, String userVisaStatus, Timestamp creationTime, 
+		 * Timestamp lastModTime
 		 */
 		User requestMockUser = new User("US09", "Ajay", "Das", 8553355123L, "Harrisburgh", "EST", "https://www.linkedin.com/in/AjayDas", 
 				"UG", "PG", "Insertion from Test", "H4-EAD", new Timestamp(utilDate.getTime()), new Timestamp(utilDate.getTime()));
-		String requestJSON = mapper.writeValueAsString(requestMockUser);
+		
+		
+		UserDto requestMockUserDto = new UserDto("US09", "Ajay,Das", 8553355123L, "Harrisburgh", "EST", "https://www.linkedin.com/in/AjayDas", 
+				"UG", "PG", "H4-EAD", "Insertion from Test");
+		requestMockUserDto.setUser_id("");
+		String requestJSON = mapper.writeValueAsString(requestMockUserDto);		
 		
 		UserDto responseMockUserDto = mapEntityToDto(requestMockUser, "POST");
 		String responseJSON = mapper.writeValueAsString(responseMockUserDto);
@@ -198,7 +203,12 @@ public class UserControllerTest {
 		User requestMockUser = populateUserData().get(1);
 		requestMockUser.setUserPhoneNumber(5554443654L);
 		requestMockUser.setLastModTime(new Timestamp(utilDate.getTime()));
-		String requestJSON = mapper.writeValueAsString(requestMockUser);
+		
+		UserDto requestMockUserDto = mapEntityToDto(requestMockUser, "PUT");
+		requestMockUserDto.setUser_id("");
+		requestMockUserDto.setMessage_response("");
+		String requestJSON = mapper.writeValueAsString(requestMockUserDto);
+		
 		String uri = "/Users/" + requestMockUser.getUserId();
 		
 		UserDto responseMockUserDto = mapEntityToDto(requestMockUser, "PUT");

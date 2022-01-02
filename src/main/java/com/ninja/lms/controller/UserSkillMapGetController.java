@@ -50,7 +50,7 @@ public class UserSkillMapGetController {
 		return new ResponseEntity(responseMap, HttpStatus.OK);
 	}
 
-	@GetMapping("/UserSkillBySkill/{skillId}")
+	@GetMapping("/UsersSkillsMap/{skillId}")
 	@ApiOperation(value = "List all users details by SKILL_ID")
 	public ResponseEntity<Map<String, Object>> getUserBySkillId(@PathVariable("skillId") String paramSkillId) {
 		
@@ -73,41 +73,5 @@ public class UserSkillMapGetController {
 				
 		return new ResponseEntity(responseMap, HttpStatus.OK);
 	}
-	
-	// endpoint -> /UserSkillsMap?userid= or /UserSkillsMap?skillid=
-/*	
-	  @GetMapping("/UserSkillsMap")
-	  @ApiOperation(value ="List user / users with the skills details by USER_ID / SKILL_ID") 
-	  public ResponseEntity<Map<String, UserWithSkillsDisplayDto>> getUserAndSkillById(@RequestParam Map<String,String> paramMap){
-		  
-		  Map<String, Object> responseMap = new LinkedHashMap<>();
-		  
-		  if(!paramMap.isEmpty() && paramMap.containsKey("userid")) {
-			  
-			  UserWithSkillsDisplayDto userSkillMap = service.fetchUserAndSkillById(paramMap.get("userid")); 
-			  responseMap.put("users", userSkillMap);
-		  } 
-		  
-		  if(!paramMap.isEmpty() && paramMap.containsKey("skillid")) {
-			  int skillId = 0;
-			  String paramVal = paramMap.get("skillid");
-				if(null == paramVal || paramVal.equals("")) {
-					throw new FieldValidationException("Skill ID - " + paramVal + " is invalid !!");
-				} else {
-					try {
-						skillId = Integer.parseInt(paramVal);
-						
-					}catch(Exception ex) {
-						throw new FieldValidationException("Skill ID - " + paramVal + " is invalid !!");
-					}
-				}
-				
-				List<UserWithSkillsDisplayDto> userSkillDtoList = service.fetchUserBySkillId(skillId);
-				responseMap.put("users", userSkillDtoList);
-		  }
-		  
-		  return new ResponseEntity(responseMap, HttpStatus.OK);	  
-	  }
-*/	 
 
 }
